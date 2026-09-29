@@ -1,1 +1,4 @@
-opencv-python numpy
+opencv-python
+numpy
+pytesseract
+pygame

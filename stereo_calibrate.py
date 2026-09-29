@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 import time
+import argparse
+import platform
 
 # ============================================================
 # CONFIGURATION
@@ -9,8 +11,22 @@ import time
 LEFT_CAMERA = 0
 RIGHT_CAMERA = 1
 
-IMAGE_WIDTH = 640
-IMAGE_HEIGHT = 480
+RESOLUTIONS = {
+    "320x240": (320, 240),
+    "640x480": (640, 480),
+}
+
+parser = argparse.ArgumentParser(
+    description="Capture stereo calibration images at a supported resolution."
+)
+parser.add_argument(
+    "--resolution",
+    choices=RESOLUTIONS,
+    default="320x240",
+    help="Capture and calibration size (default: 320x240)",
+)
+args = parser.parse_args()
+IMAGE_WIDTH, IMAGE_HEIGHT = RESOLUTIONS[args.resolution]
 
 # ============================================================
 # CHESSBOARD CONFIGURATION
@@ -65,15 +81,10 @@ right_image_points = []
 # OPEN CAMERAS
 # ============================================================
 
-left_cam = cv2.VideoCapture(
-    LEFT_CAMERA,
-    cv2.CAP_DSHOW
-)
+backend = cv2.CAP_V4L2 if platform.system() == "Linux" else cv2.CAP_DSHOW
+left_cam = cv2.VideoCapture(LEFT_CAMERA, backend)
 
-right_cam = cv2.VideoCapture(
-    RIGHT_CAMERA,
-    cv2.CAP_DSHOW
-)
+right_cam = cv2.VideoCapture(RIGHT_CAMERA, backend)
 
 left_cam.set(
     cv2.CAP_PROP_FRAME_WIDTH,
